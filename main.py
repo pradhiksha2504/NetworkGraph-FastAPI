@@ -18,9 +18,9 @@ app.add_middleware(
 
 db_config = {
     'host': 'localhost',
-    'user': 'root', 
-    'password': '1234pass',  
-    'database': 'csv_network',  
+    'user': 'your_username', 
+    'password': 'your_password',  
+    'database': 'your_database_name',  
 }
 
 def get_db_connection():
