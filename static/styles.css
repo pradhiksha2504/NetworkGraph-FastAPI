@@ -1,0 +1,117 @@
+    body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #142d4c;
+    /* background-color: red; */
+}
+
+h1 {
+    color: #ececec;
+    margin-bottom: 10vh;
+}
+
+#sub-content {
+    max-height: 400px;
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+    padding: 50px;
+}
+#pagination-controls{
+    margin: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="submit"] {
+    /* background-color: rgb(201, 180, 46); */
+    padding: 10px;
+    border: none;
+    border-radius: 5%;
+}
+
+/* #csvFile {
+    margin-bottom: 10px;
+    background-color: #8599ad;
+}
+
+#csvFile button {
+    background-color: #8599ad; */
+/* } */
+#fetch-data-btn button{
+    background-color: white;
+
+}
+#generate-graph-btn button, button {
+    padding: 50px;
+    background-color: #0F52BA;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    gap: 10px;
+}
+
+#generate-graph-btn button:hover, button:hover {
+    background-color: #008080;
+    /* color: #333; */
+}
+
+#container {
+    width: 100%;  
+    max-width: 1000px; 
+    height: 700px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+#full-content {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+#grapharea{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%; 
+    height: 100%;  
+    max-width: 1000px;  
+    max-height: 700px;  
+    color: #ececec;
+}
+#file-list {
+    display: block;
+    width: 100%;
+}
+
+#file-list label {
+    display: block; 
+    width: 100%;
+    max-width: 700px; 
+    background-color: whitesmoke;
+    color: #142d4c;
+    border-radius: 5%;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer; 
+    box-sizing: border-box; 
+}
+
+#file-list label:hover{
+    background-color:#008080;
+    color: whitesmoke;
+}
