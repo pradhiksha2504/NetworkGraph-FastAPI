@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Graph</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/modules/data.js"></script>
+    <link rel="stylesheet" href="static\styles.css">
+</head>
+
+<body>
+
+    <h1>Network Graph Visualization</h1>
+    <div id="full-content">
+        <div id="sub-content">
+            <form id="csv-upload-form">
+                <input type="file" id="csvFile" accept=".csv" required>
+                <button id="upload-csv-btn" type="submit">Upload CSV</button>
+            </form>
+
+            <button id="fetch-data-btn">Fetch CSV Files</button>
+        </div>
+
+        <div id="grapharea">
+            <h3 id="filetitle" style="display: none;">Select one or more CSV Files to generate Graph</h3>
+            <div id="file-list"></div>
+            
+            <div id="pagination-controls" style="display: none;">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn" disabled>Next</button>
+            </div>
+            <button id="generate-graph-btn" style="display: none;">Generate Network Graph</button>
+        </div>
+    </div>
+    <br>
+
+    <div id="network-graph-container" style="min-height: 400px; margin-bottom: 5vh; max-width: max-content;"></div>
+
+    <script>
+        let selectedFiles = [];
+        let currentPage = 1;
+        const recordsPerPage = 5;
+        let totalFiles = 0;
+        let allFiles = [];
+
+        document.getElementById('csv-upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const csvFile = document.getElementById('csvFile').files[0];
+            const formData = new FormData();
+            formData.append('file', csvFile);
+
+            const response = await fetch('http://localhost:8000/upload-csv/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+
+        document.getElementById('fetch-data-btn').addEventListener('click', async function() {
+            const response = await fetch('http://localhost:8000/files/');
+            const data = await response.json();
+            allFiles = data.files;
+            totalFiles = allFiles.length;
+
+            document.getElementById("filetitle").style.display = "block";
+            document.getElementById('generate-graph-btn').style.display = 'block';
+            document.getElementById("pagination-controls").style.display = 'block';
+
+            currentPage = 1;
+            displayFiles(currentPage);
+            updatePaginationButtons();
+        });
+
+        function displayFiles(page) {
+    let start = (page - 1) * recordsPerPage;
+    let end = start + recordsPerPage;
+
+    let fileListHTML = '<h4>';
+    allFiles.slice(start, end).forEach(file => {
+        fileListHTML += `
+            <h5>
+                <label style="cursor: pointer;">
+                    <input type="checkbox" value="${file.id}" onchange="toggleFileSelection(${file.id})">
+                    CSV File ${file.id}
+                </label>
+            </h5>`;
+    });
+    fileListHTML += '</h4>';
+
+    document.getElementById('file-list').innerHTML = fileListHTML;
+}
+
+
+        function updatePaginationButtons() {
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage * recordsPerPage >= totalFiles;
+        }
+
+        document.getElementById('next-btn').addEventListener('click', function() {
+            if (currentPage * recordsPerPage < totalFiles) {
+                currentPage++;
+                displayFiles(currentPage);
+                updatePaginationButtons();
+            }
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayFiles(currentPage);
+                updatePaginationButtons();
+            }
+        });
+
+        function toggleFileSelection(fileId) {
+            const index = selectedFiles.indexOf(fileId);
+            if (index > -1) {
+                selectedFiles.splice(index, 1);
+            } else {
+                selectedFiles.push(fileId);
+            }
+        }
+
+        document.getElementById('generate-graph-btn').addEventListener('click', async function() {
+            if (selectedFiles.length === 0) {
+                alert('Please select at least one CSV file.');
+                return;
+            }
+
+            const combinedData = [];
+
+            for (const fileId of selectedFiles) {
+                const response = await fetch(`http://localhost:8000/csv-data/${fileId}`);
+                const data = await response.json();
+                combinedData.push(...data);
+            }
+
+            const networkData = combinedData.map(row => [row.source, row.target, row.force]);
+            console.log(networkData);
+            Highcharts.chart('network-graph-container', {
+                chart: {
+                    type: 'networkgraph',
+                    height: '100%'
+                },
+                title: {
+                    text: 'Combined Network Graph'
+                },
+                plotOptions: {
+                    networkgraph: {
+                        keys: ['to', 'from'],
+                        layoutAlgorithm: {
+                            enableSimulation: true,
+                            linkLength: 50
+                        },
+                        link: {
+                            color: 'blue',
+                            lineWidth: 2
+                        }
+                    }
+                },
+                series: [{
+                    dataLabels: {
+                        enabled: true
+                    },
+                    marker: {
+                        radius: 20
+                    },
+                    data: networkData
+                }]
+            });
+        });
+        // const checkboxes = document.querySelectorAll('#file-list input[type="checkbox"]');
+        // checkboxes.forEach(checkbox => checkbox.checked =     false);
+    </script>
+
+</body>
+</html>
