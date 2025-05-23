@@ -19,7 +19,7 @@
         <div id="sub-content">
             <form id="csv-upload-form">
                 <input type="file" id="csvFile" accept=".csv" required>
-                <button id="upload-csv-btn" type="submit">Upload CSV</button>
+                <button id="upload-csv-btn" type    ="submit">Upload CSV</button>
             </form>
 
             <button id="fetch-data-btn">Fetch CSV Files</button>
@@ -30,8 +30,14 @@
             <div id="file-list"></div>
             
             <div id="pagination-controls" style="display: none;">
+            <div id="pagination-btn">
                 <button id="prev-btn" disabled>Previous</button>
                 <button id="next-btn" disabled>Next</button>
+            </div>
+                <!-- <h5 id="page-no">Page number: </h5> -->
+            <div id="page-no" style="display: none;">
+                <h5>Page Number:</h5>
+            </div>
             </div>
             <button id="generate-graph-btn" style="display: none;">Generate Network Graph</button>
         </div>
@@ -41,6 +47,66 @@
     <div id="network-graph-container" style="min-height: 400px; margin-bottom: 5vh; max-width: max-content;"></div>
 
     <script>
+        (function(H) {
+        H.wrap(H.seriesTypes.networkgraph.prototype.pointClass.prototype, 'getLinkPath', function(p) {
+        var left = this.fromNode,
+            right = this.toNode;
+
+        var angle = Math.atan((left.plotX - right.plotX) / (left.plotY - right.plotY));
+
+        if (angle) {
+            let path = ['M', left.plotX, left.plotY, right.plotX, right.plotY],
+                pointRadius = 45,
+                arrowLength = 20,
+                arrowWidth = 10;
+
+            if (left.plotY < right.plotY) {
+                path.push(
+                    right.plotX - pointRadius * Math.sin(angle),
+                    right.plotY - pointRadius * Math.cos(angle),
+                );
+                path.push(
+                    right.plotX - pointRadius * Math.sin(angle) - arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle),
+                    right.plotY - pointRadius * Math.cos(angle) - arrowLength * Math.cos(angle) + arrowWidth * Math.sin(angle),
+                );
+
+                path.push(
+                    right.plotX - pointRadius * Math.sin(angle),
+                    right.plotY - pointRadius * Math.cos(angle),
+                );
+                path.push(
+                    right.plotX - pointRadius * Math.sin(angle) - arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle),
+                    right.plotY - pointRadius * Math.cos(angle) - arrowLength * Math.cos(angle) - arrowWidth * Math.sin(angle),
+                );
+
+            } else {
+                path.push(
+                    right.plotX + pointRadius * Math.sin(angle),
+                    right.plotY + pointRadius * Math.cos(angle),
+                );
+                path.push(
+                    right.plotX + pointRadius * Math.sin(angle) + arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle),
+                    right.plotY + pointRadius * Math.cos(angle) + arrowLength * Math.cos(angle) + arrowWidth * Math.sin(angle),
+                );
+                path.push(
+                    right.plotX + pointRadius * Math.sin(angle),
+                    right.plotY + pointRadius * Math.cos(angle),
+                );
+                path.push(
+                    right.plotX + pointRadius * Math.sin(angle) + arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle),
+                    right.plotY + pointRadius * Math.cos(angle) + arrowLength * Math.cos(angle) - arrowWidth * Math.sin(angle),
+                );
+            }
+
+            return path;
+        }
+        return [
+            ['M', left.plotX || 0, left.plotY || 0],
+            ['L', right.plotX || 0, right.plotY || 0],
+        ];
+        });
+        }(Highcharts));
+
         let selectedFiles = [];
         let currentPage = 1;
         const recordsPerPage = 5;
@@ -70,7 +136,10 @@
 
             document.getElementById("filetitle").style.display = "block";
             document.getElementById('generate-graph-btn').style.display = 'block';
-            document.getElementById("pagination-controls").style.display = 'block';
+            document.getElementById("pagination-controls").style.display = 'flex';
+            document.getElementById("pagination-controls").style.gap = '10rem';
+            document.getElementById("page-no").style.display = 'block';
+            document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
 
             currentPage = 1;
             displayFiles(currentPage);
@@ -107,6 +176,7 @@
                 currentPage++;
                 displayFiles(currentPage);
                 updatePaginationButtons();
+                document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
             }
         });
 
@@ -115,8 +185,11 @@
                 currentPage--;
                 displayFiles(currentPage);
                 updatePaginationButtons();
+                document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
             }
         });
+
+
 
         function toggleFileSelection(fileId) {
             const index = selectedFiles.indexOf(fileId);
@@ -153,20 +226,24 @@
                 },
                 plotOptions: {
                     networkgraph: {
-                        keys: ['to', 'from'],
+                        keys: ['from','to'],
                         layoutAlgorithm: {
                             enableSimulation: true,
                             linkLength: 50
                         },
                         link: {
                             color: 'blue',
-                            lineWidth: 2
+                            lineWidth: 2,
+                            dataLabels:{
+                                enabled: false
+                            }
                         }
                     }
                 },
                 series: [{
                     dataLabels: {
-                        enabled: true
+                        enabled: true,
+                        allowOverlap:false
                     },
                     marker: {
                         radius: 20

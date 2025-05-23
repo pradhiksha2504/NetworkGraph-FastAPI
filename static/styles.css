@@ -28,9 +28,11 @@ input[type="file"] {
     margin-bottom: 10px;
     padding: 50px;
 }
-#pagination-controls{
+
+#pagination-btn{
     margin: 10px;
     margin-bottom: 20px;
+    flex-direction: column;
 }
 
 input[type="submit"] {
@@ -40,14 +42,6 @@ input[type="submit"] {
     border-radius: 5%;
 }
 
-/* #csvFile {
-    margin-bottom: 10px;
-    background-color: #8599ad;
-}
-
-#csvFile button {
-    background-color: #8599ad; */
-/* } */
 #fetch-data-btn button{
     background-color: white;
 
