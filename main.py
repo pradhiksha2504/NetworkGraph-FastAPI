@@ -13,17 +13,25 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Database configuration from environment variables (for Render)
-db_config = {
-    'host': os.environ.get("DB_HOST"),
-    'user': os.environ.get("DB_USER"),
-    'password': os.environ.get("DB_PASSWORD"),
-    'database': os.environ.get("DB_NAME"),
-    'port': os.environ.get("DB_PORT", 5432)
-}
+# db_config = {
+#     'host': os.environ.get("DB_HOST"),
+#     'user': os.environ.get("DB_USER"),
+#     'password': os.environ.get("DB_PASSWORD"),
+#     'database': os.environ.get("DB_NAME"),
+#     'port': os.environ.get("DB_PORT", 5432)
+# }
+
 
 def get_db_connection():
     try:
-        conn = psycopg2.connect(**db_config)
+        # conn = psycopg2.connect(**db_config)
+        conn = psycopg2.connect(
+            dbname="csv_network",
+            user="csv_network_user",
+            password="znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C",
+            host="dpg-d0oqdu6mcj7s73df39p0-a",
+            port="5432"
+        )
         return conn
     except Exception as e:
         logging.error("Database connection failed: %s", str(e))
