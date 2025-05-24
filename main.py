@@ -8,13 +8,15 @@ import pandas as pd
 import io
 import os
 
+
 db_config = {
-    'host': 'localhost',
-    'user': 'postgres',
-    'password': 'p1a2s3s4',
-    'database': 'csv_network',
-    'port' : 5432
+    'host': os.environ.get("DB_HOST"),
+    'user': os.environ.get("DB_USER"),
+    'password': os.environ.get("DB_PASSWORD"),
+    'database': os.environ.get("DB_NAME"),
+    'port': os.environ.get("DB_PORT", 5432)
 }
+
 
 
 def get_db_connection():
