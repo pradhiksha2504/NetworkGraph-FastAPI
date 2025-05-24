@@ -3,27 +3,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-import mysql.connector
+import psycopg2
 import pandas as pd
 import io
 import os
 
 db_config = {
     'host': 'localhost',
-    'user': 'root',
+    'user': 'postgres',
     'password': 'p1a2s3s4',
-    'database': 'csv_network'
+    'database': 'csv_network',
+    'port' : 5432
 }
 
+
 def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    conn = psycopg2.connect(**db_config)
+    return conn
 
 def create_table():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS network (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             data TEXT NOT NULL
         )
     ''')
@@ -31,7 +34,6 @@ def create_table():
     cursor.close()
     conn.close()
 
-# --- Lifespan handler ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_table()
@@ -39,7 +41,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# --- CORS setup ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -48,7 +49,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Upload CSV ---
+#Upload CSV
 @app.post("/upload-csv/")
 async def upload_csv(file: UploadFile = File(...)):
     try:
@@ -75,7 +76,7 @@ async def upload_csv(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- List Files ---
+#List Files
 @app.get("/files/")
 async def list_files():
     try:
@@ -92,7 +93,7 @@ async def list_files():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- Get CSV Data by ID ---
+#Get CSV Data by ID
 @app.get("/csv-data/{file_id}")
 async def get_csv_data(file_id: int):
     try:
@@ -112,7 +113,6 @@ async def get_csv_data(file_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- Serve index.html ---
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 @app.get("/", response_class=HTMLResponse)
@@ -123,13 +123,13 @@ async def read_index():
     with open(index_path) as f:
         return f.read()
 
-# --- Test DB Connection ---
+#Test DB Connection
 @app.get("/test-db/")
 async def test_db():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SHOW TABLES")
+        cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
         tables = cursor.fetchall()
         cursor.close()
         conn.close()
