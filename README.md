@@ -20,7 +20,7 @@ This project allows users to upload CSV files, fetch them from a MySQL database,
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/network-graph-visualization.git
+git clone https://github.com/pradhikshaks2504/network-graph-visualization.git
 cd network-graph-visualization
 ```
 
