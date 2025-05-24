@@ -1,4 +1,5 @@
-fastapi==0.95.1
-uvicorn==0.22.0
-mysql-connector-python==8.0.33
-pandas==2.0.3
+fastapi
+uvicorn
+pandas
+mysql-connector-python
+python-multipart
