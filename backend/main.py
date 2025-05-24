@@ -113,11 +113,11 @@ async def get_csv_data(file_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- Serve index.html ---
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
-    index_path = "static/index.html"
+    index_path = "frontend/index.html"
     if not os.path.exists(index_path):
         raise HTTPException(status_code=404, detail="index.html not found")
     with open(index_path) as f:
