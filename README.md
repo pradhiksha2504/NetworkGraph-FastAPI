@@ -8,12 +8,11 @@ This project allows users to upload CSV files, fetch them from a MySQL database,
 - Store uploaded CSV files in a MySQL database.
 - Fetch CSV files from the database and display them on the frontend.
 - Generate network graphs from selected CSV files.
-- Visualize the data dynamically using Highcharts Network Graph module.
 
 ## Technologies Used
 
-- **Backend**: FastAPI, MySQL, Pandas
-- **Frontend**: HTML, CSS, JavaScript, Highcharts Network Graph
+- **Backend**: FastAPI, MySQL
+- **Frontend**: HTML, CSS, JavaScript
 - **Database**: MySQL
 
 ## Setup Instructions
@@ -51,19 +50,7 @@ CREATE TABLE csv_files (
     file_data LONGBLOB
 );
 ```
-
-### 4. Environment Variables
-
-Ensure that your FastAPI application can connect to your MySQL database. You might want to configure connection details like this in your `.env` file:
-
-```
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_NAME=network_graphs
-```
-
-### 5. Running the Application
+### 5. Run the Application
 
 To start the FastAPI server, run:
 
@@ -95,8 +82,7 @@ The frontend is located in the same directory and will interact with the FastAPI
 
 Once CSV files are uploaded and stored, you can:
 - Select files from the list.
-- Combine multiple CSV files.
-- Click "Generate Network Graph" to visualize the network graph on the frontend.
+- Click "Generate Network Graph" to visualize the network graph.
 
 ## Project Structure
 
@@ -116,16 +102,5 @@ Once CSV files are uploaded and stored, you can:
 └── README.md               # Project documentation
 ```
 
-## License
 
-This project is licensed under the MIT License.
 
----
-
-## Contributions
-
-Feel free to fork the repository and submit pull requests to improve the project.
-
----
-
-This `README.md` should provide all the necessary information for anyone who wants to clone and run the project locally or understand its functionality for further development!
