@@ -33,6 +33,7 @@ def get_db_connection():
             port="5432"
         )
         return conn
+        
     except Exception as e:
         logging.error("Database connection failed: %s", str(e))
         raise HTTPException(status_code=500, detail="Database connection failed.")
