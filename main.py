@@ -21,22 +21,32 @@ logging.basicConfig(level=logging.INFO)
 #     'port': os.environ.get("DB_PORT", 5432)
 # }
 
+DATABASE_URL="postgresql://csv_network_user:znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C@dpg-d0oqdu6mcj7s73df39p0-a.oregon-postgres.render.com/csv_network"
+
 
 def get_db_connection():
     try:
-        # conn = psycopg2.connect(**db_config)
-        conn = psycopg2.connect(
-            dbname="csv_network",
-            user="csv_network_user",
-            password="znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C",
-            host="dpg-d0oqdu6mcj7s73df39p0-a",
-            port="5432"
-        )
+        conn = psycopg2.connect(DATABASE_URL)
         return conn
-        
     except Exception as e:
-        logging.error("Database connection failed: %s", str(e))
+        # logging.error("Database connection failed: %s", str(e))
         raise HTTPException(status_code=500, detail="Database connection failed.")
+
+# def get_db_connection():
+#     try:
+#         # conn = psycopg2.connect(**db_config)
+#         conn = psycopg2.connect(
+#             dbname="csv_network",
+#             user="csv_network_user",
+#             password="znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C",
+#             host="dpg-d0oqdu6mcj7s73df39p0-a",
+#             port="5432"
+#         )
+#         return conn
+        
+#     except Exception as e:
+#         logging.error("Database connection failed: %s", str(e))
+#         raise HTTPException(status_code=500, detail="Database connection failed.")
 
 def create_table():
     conn = get_db_connection()
