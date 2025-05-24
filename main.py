@@ -7,19 +7,6 @@ import psycopg2
 import pandas as pd
 import io
 import os
-import logging
-
-# Enable logging
-logging.basicConfig(level=logging.INFO)
-
-# Database configuration from environment variables (for Render)
-# db_config = {
-#     'host': os.environ.get("DB_HOST"),
-#     'user': os.environ.get("DB_USER"),
-#     'password': os.environ.get("DB_PASSWORD"),
-#     'database': os.environ.get("DB_NAME"),
-#     'port': os.environ.get("DB_PORT", 5432)
-# }
 
 DATABASE_URL="postgresql://csv_network_user:znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C@dpg-d0oqdu6mcj7s73df39p0-a.oregon-postgres.render.com/csv_network"
 
@@ -29,47 +16,25 @@ def get_db_connection():
         conn = psycopg2.connect(DATABASE_URL)
         return conn
     except Exception as e:
-        # logging.error("Database connection failed: %s", str(e))
         raise HTTPException(status_code=500, detail="Database connection failed.")
-
-# def get_db_connection():
-#     try:
-#         # conn = psycopg2.connect(**db_config)
-#         conn = psycopg2.connect(
-#             dbname="csv_network",
-#             user="csv_network_user",
-#             password="znkQlDwPH0VR5voj7sfGLpQhHC4kHj4C",
-#             host="dpg-d0oqdu6mcj7s73df39p0-a",
-#             port="5432"
-#         )
-#         return conn
-        
-#     except Exception as e:
-#         logging.error("Database connection failed: %s", str(e))
-#         raise HTTPException(status_code=500, detail="Database connection failed.")
 
 def create_table():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS network (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS network (
             id SERIAL PRIMARY KEY,
-            data TEXT NOT NULL
-        )
-    ''')
+            data TEXT NOT NULL)''')
     conn.commit()
     cursor.close()
     conn.close()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.info("Starting app, creating table if not exists.")
     create_table()
     yield
 
 app = FastAPI(lifespan=lifespan)
 
-# Allow all origins during development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -86,7 +51,6 @@ async def upload_csv(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Only CSV files are allowed.")
 
         contents = await file.read()
-        logging.info(f"Received file: {file.filename}, Size: {len(contents)} bytes")
 
         df = pd.read_csv(io.BytesIO(contents))
 
@@ -105,7 +69,6 @@ async def upload_csv(file: UploadFile = File(...)):
         return {"message": "File uploaded and data inserted successfully"}
 
     except Exception as e:
-        logging.error("Error during file upload: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 # List Uploaded Files
@@ -123,7 +86,6 @@ async def list_files():
         return {"files": file_list}
 
     except Exception as e:
-        logging.error("Error listing files: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get CSV data by file ID
@@ -144,13 +106,10 @@ async def get_csv_data(file_id: int):
         return csv_data.to_dict(orient="records")
 
     except Exception as e:
-        logging.error("Error fetching file ID %s: %s", file_id, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
-# Serve static frontend
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
-# Serve frontend index.html at root path
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
     index_path = "frontend/index.html"
@@ -159,7 +118,6 @@ async def read_index():
     with open(index_path) as f:
         return f.read()
 
-# Optional: DB connection test
 @app.get("/test-db/")
 async def test_db():
     try:
