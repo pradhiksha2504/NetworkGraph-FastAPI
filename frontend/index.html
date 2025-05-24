@@ -33,7 +33,7 @@
       <div id="file-list"></div>
 
       <div id="pagination-controls" style="display: none; gap: 10rem; display: flex;">
-        <div id="pagination-btn">
+        <div id="pagination-btn" style="display: none;">
           <button id="prev-btn" disabled>Previous</button>
           <button id="next-btn" disabled>Next</button>
         </div>
@@ -194,6 +194,7 @@
           document.getElementById("pagination-controls").style.display = "flex";
           document.getElementById("page-no").style.display = "block";
           document.getElementById("page-no").textContent = `Page number: ${currentPage}`;
+          document.getElementById("pagination-btn").style.display = "block";
 
           displayFiles(currentPage);
           updatePaginationButtons();
