@@ -1,260 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Graph</title>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-    <script src="https://code.highcharts.com/modules/data.js"></script>
-    <link rel="stylesheet" href="frontend/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Network Graph</title>
+
+  <!-- Highcharts and modules -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+  <script src="https://code.highcharts.com/modules/data.js"></script>
+
+  <!-- Your CSS, adjust path if needed -->
+  <link rel="stylesheet" href="frontend/styles.css" />
 </head>
-
 <body>
+  <h1>Network Graph Visualization</h1>
 
-    <h1>Network Graph Visualization</h1>
-    <div id="full-content">
-        <div id="sub-content">
-            <form id="csv-upload-form">
-                <input type="file" id="csvFile" accept=".csv" required>
-                <button id="upload-csv-btn" type    ="submit">Upload CSV</button>
-            </form>
+  <div id="full-content">
+    <div id="sub-content">
+      <form id="csv-upload-form">
+        <input type="file" id="csvFile" accept=".csv" required />
+        <button id="upload-csv-btn" type="submit">Upload CSV</button>
+      </form>
 
-            <button id="fetch-data-btn">Fetch CSV Files</button>
-        </div>
-
-        <div id="grapharea">
-            <h3 id="filetitle" style="display: none;">Select one or more CSV Files to generate Graph</h3>
-            <div id="file-list"></div>
-            
-            <div id="pagination-controls" style="display: none;">
-            <div id="pagination-btn">
-                <button id="prev-btn" disabled>Previous</button>
-                <button id="next-btn" disabled>Next</button>
-            </div>
-                <!-- <h5 id="page-no">Page number: </h5> -->
-            <div id="page-no" style="display: none;">
-                <h5>Page Number:</h5>
-            </div>
-            </div>
-            <button id="generate-graph-btn" style="display: none;">Generate Network Graph</button>
-        </div>
+      <button id="fetch-data-btn">Fetch CSV Files</button>
     </div>
-    <br>
 
-    <div id="network-graph-container" style="min-height: 400px; margin-bottom: 5vh; max-width: max-content;"></div>
+    <div id="grapharea">
+      <h3 id="filetitle" style="display: none;">Select one or more CSV Files to generate Graph</h3>
+      <div id="file-list"></div>
 
-    <script>
-        (function(H) {
-        H.wrap(H.seriesTypes.networkgraph.prototype.pointClass.prototype, 'getLinkPath', function(p) {
-        var left = this.fromNode,
+      <div id="pagination-controls" style="display: none; gap: 10rem; display: flex;">
+        <div id="pagination-btn">
+          <button id="prev-btn" disabled>Previous</button>
+          <button id="next-btn" disabled>Next</button>
+        </div>
+
+        <div id="page-no" style="display: none;">
+          <h5>Page Number:</h5>
+        </div>
+      </div>
+
+      <button id="generate-graph-btn" style="display: none;">Generate Network Graph</button>
+    </div>
+  </div>
+
+  <br />
+
+  <div
+    id="network-graph-container"
+    style="min-height: 400px; margin-bottom: 5vh; max-width: max-content"
+  ></div>
+
+  <script>
+    (function (H) {
+      H.wrap(
+        H.seriesTypes.networkgraph.prototype.pointClass.prototype,
+        "getLinkPath",
+        function (p) {
+          var left = this.fromNode,
             right = this.toNode;
 
-        var angle = Math.atan((left.plotX - right.plotX) / (left.plotY - right.plotY));
+          var angle = Math.atan(
+            (left.plotX - right.plotX) / (left.plotY - right.plotY)
+          );
 
-        if (angle) {
-            let path = ['M', left.plotX, left.plotY, right.plotX, right.plotY],
-                pointRadius = 45,
-                arrowLength = 20,
-                arrowWidth = 10;
+          if (angle) {
+            let path = ["M", left.plotX, left.plotY, right.plotX, right.plotY],
+              pointRadius = 45,
+              arrowLength = 20,
+              arrowWidth = 10;
 
             if (left.plotY < right.plotY) {
-                path.push(
-                    right.plotX - pointRadius * Math.sin(angle),
-                    right.plotY - pointRadius * Math.cos(angle),
-                );
-                path.push(
-                    right.plotX - pointRadius * Math.sin(angle) - arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle),
-                    right.plotY - pointRadius * Math.cos(angle) - arrowLength * Math.cos(angle) + arrowWidth * Math.sin(angle),
-                );
+              path.push(
+                right.plotX - pointRadius * Math.sin(angle),
+                right.plotY - pointRadius * Math.cos(angle)
+              );
+              path.push(
+                right.plotX -
+                  pointRadius * Math.sin(angle) -
+                  arrowLength * Math.sin(angle) -
+                  arrowWidth * Math.cos(angle),
+                right.plotY -
+                  pointRadius * Math.cos(angle) -
+                  arrowLength * Math.cos(angle) +
+                  arrowWidth * Math.sin(angle)
+              );
 
-                path.push(
-                    right.plotX - pointRadius * Math.sin(angle),
-                    right.plotY - pointRadius * Math.cos(angle),
-                );
-                path.push(
-                    right.plotX - pointRadius * Math.sin(angle) - arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle),
-                    right.plotY - pointRadius * Math.cos(angle) - arrowLength * Math.cos(angle) - arrowWidth * Math.sin(angle),
-                );
-
+              path.push(
+                right.plotX - pointRadius * Math.sin(angle),
+                right.plotY - pointRadius * Math.cos(angle)
+              );
+              path.push(
+                right.plotX -
+                  pointRadius * Math.sin(angle) -
+                  arrowLength * Math.sin(angle) +
+                  arrowWidth * Math.cos(angle),
+                right.plotY -
+                  pointRadius * Math.cos(angle) -
+                  arrowLength * Math.cos(angle) -
+                  arrowWidth * Math.sin(angle)
+              );
             } else {
-                path.push(
-                    right.plotX + pointRadius * Math.sin(angle),
-                    right.plotY + pointRadius * Math.cos(angle),
-                );
-                path.push(
-                    right.plotX + pointRadius * Math.sin(angle) + arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle),
-                    right.plotY + pointRadius * Math.cos(angle) + arrowLength * Math.cos(angle) + arrowWidth * Math.sin(angle),
-                );
-                path.push(
-                    right.plotX + pointRadius * Math.sin(angle),
-                    right.plotY + pointRadius * Math.cos(angle),
-                );
-                path.push(
-                    right.plotX + pointRadius * Math.sin(angle) + arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle),
-                    right.plotY + pointRadius * Math.cos(angle) + arrowLength * Math.cos(angle) - arrowWidth * Math.sin(angle),
-                );
+              path.push(
+                right.plotX + pointRadius * Math.sin(angle),
+                right.plotY + pointRadius * Math.cos(angle)
+              );
+              path.push(
+                right.plotX +
+                  pointRadius * Math.sin(angle) +
+                  arrowLength * Math.sin(angle) -
+                  arrowWidth * Math.cos(angle),
+                right.plotY +
+                  pointRadius * Math.cos(angle) +
+                  arrowLength * Math.cos(angle) +
+                  arrowWidth * Math.sin(angle)
+              );
+              path.push(
+                right.plotX + pointRadius * Math.sin(angle),
+                right.plotY + pointRadius * Math.cos(angle)
+              );
+              path.push(
+                right.plotX +
+                  pointRadius * Math.sin(angle) +
+                  arrowLength * Math.sin(angle) +
+                  arrowWidth * Math.cos(angle),
+                right.plotY +
+                  pointRadius * Math.cos(angle) +
+                  arrowLength * Math.cos(angle) -
+                  arrowWidth * Math.sin(angle)
+              );
             }
 
             return path;
+          }
+          return [
+            ["M", left.plotX || 0, left.plotY || 0],
+            ["L", right.plotX || 0, right.plotY || 0],
+          ];
         }
-        return [
-            ['M', left.plotX || 0, left.plotY || 0],
-            ['L', right.plotX || 0, right.plotY || 0],
-        ];
-        });
-        }(Highcharts));
+      );
+    })(Highcharts);
 
-        let selectedFiles = [];
-        let currentPage = 1;
-        const recordsPerPage = 5;
-        let totalFiles = 0;
-        let allFiles = [];
+    let selectedFiles = [];
+    let currentPage = 1;
+    const recordsPerPage = 5;
+    let totalFiles = 0;
+    let allFiles = [];
 
-        document.getElementById('csv-upload-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const csvFile = document.getElementById('csvFile').files[0];
-            const formData = new FormData();
-            formData.append('file', csvFile);
+    // Upload CSV
+    document
+      .getElementById("csv-upload-form")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const csvFile = document.getElementById("csvFile").files[0];
+        if (!csvFile) {
+          alert("Please select a CSV file.");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", csvFile);
 
-            const response = await fetch('http://localhost:8000/upload-csv/', {
-                method: 'POST',
-                body: formData
-            });
+        try {
+          const response = await fetch("http://localhost:8000/upload-csv/", {
+            method: "POST",
+            body: formData,
+          });
+          if (!response.ok) throw new Error("Upload failed");
+          const result = await response.json();
+          alert(result.message);
+        } catch (error) {
+          alert("Error uploading file: " + error.message);
+        }
+      });
 
-            const result = await response.json();
-            alert(result.message);
-        });
+    // Fetch CSV file list
+    document
+      .getElementById("fetch-data-btn")
+      .addEventListener("click", async function () {
+        try {
+          const response = await fetch("http://localhost:8000/files/");
+          if (!response.ok) throw new Error("Failed to fetch files");
+          const data = await response.json();
 
-        document.getElementById('fetch-data-btn').addEventListener('click', async function() {
-            const response = await fetch('http://localhost:8000/files/');
-            const data = await response.json();
-            allFiles = data.files;
-            totalFiles = allFiles.length;
+          allFiles = data.files;
+          totalFiles = allFiles.length;
+          currentPage = 1;
 
-            document.getElementById("filetitle").style.display = "block";
-            document.getElementById('generate-graph-btn').style.display = 'block';
-            document.getElementById("pagination-controls").style.display = 'flex';
-            document.getElementById("pagination-controls").style.gap = '10rem';
-            document.getElementById("page-no").style.display = 'block';
-            document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
+          document.getElementById("filetitle").style.display = "block";
+          document.getElementById("generate-graph-btn").style.display = "block";
+          document.getElementById("pagination-controls").style.display = "flex";
+          document.getElementById("page-no").style.display = "block";
+          document.getElementById("page-no").textContent = `Page number: ${currentPage}`;
 
-            currentPage = 1;
-            displayFiles(currentPage);
-            updatePaginationButtons();
-        });
+          displayFiles(currentPage);
+          updatePaginationButtons();
+        } catch (error) {
+          alert("Error fetching file list: " + error.message);
+        }
+      });
 
-        function displayFiles(page) {
-    let start = (page - 1) * recordsPerPage;
-    let end = start + recordsPerPage;
+    // Display files with checkboxes
+    function displayFiles(page) {
+      const start = (page - 1) * recordsPerPage;
+      const end = Math.min(start + recordsPerPage, totalFiles);
 
-    let fileListHTML = '<h4>';
-    allFiles.slice(start, end).forEach(file => {
+      let fileListHTML = "";
+      allFiles.slice(start, end).forEach((file) => {
+        // Make sure checkbox reflects current selection
+        const checked = selectedFiles.includes(file.id) ? "checked" : "";
         fileListHTML += `
-            <h5>
-                <label style="cursor: pointer;">
-                    <input type="checkbox" value="${file.id}" onchange="toggleFileSelection(${file.id})">
-                    CSV File ${file.id}
-                </label>
-            </h5>`;
+          <h5>
+            <label style="cursor: pointer;">
+              <input type="checkbox" value="${file.id}" ${checked} class="file-checkbox" />
+              CSV File ${file.id}
+            </label>
+          </h5>`;
+      });
+
+      document.getElementById("file-list").innerHTML = fileListHTML;
+
+      // Attach change event listeners to checkboxes
+      document.querySelectorAll(".file-checkbox").forEach((checkbox) => {
+        checkbox.addEventListener("change", (event) => {
+          const fileId = event.target.value;
+          toggleFileSelection(fileId);
+        });
+      });
+    }
+
+    // Pagination buttons
+    function updatePaginationButtons() {
+      document.getElementById("prev-btn").disabled = currentPage === 1;
+      document.getElementById("next-btn").disabled = currentPage * recordsPerPage >= totalFiles;
+    }
+
+    document.getElementById("next-btn").addEventListener("click", () => {
+      if (currentPage * recordsPerPage < totalFiles) {
+        currentPage++;
+        displayFiles(currentPage);
+        updatePaginationButtons();
+        document.getElementById("page-no").textContent = `Page number: ${currentPage}`;
+      }
     });
-    fileListHTML += '</h4>';
 
-    document.getElementById('file-list').innerHTML = fileListHTML;
-}
+    document.getElementById("prev-btn").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        displayFiles(currentPage);
+        updatePaginationButtons();
+        document.getElementById("page-no").textContent = `Page number: ${currentPage}`;
+      }
+    });
 
+    // Toggle file selection in array
+    function toggleFileSelection(fileId) {
+      const idx = selectedFiles.indexOf(fileId);
+      if (idx > -1) {
+        selectedFiles.splice(idx, 1);
+      } else {
+        selectedFiles.push(fileId);
+      }
+    }
 
-        function updatePaginationButtons() {
-            document.getElementById('prev-btn').disabled = currentPage === 1;
-            document.getElementById('next-btn').disabled = currentPage * recordsPerPage >= totalFiles;
+    // Generate Network Graph button
+    document.getElementById("generate-graph-btn").addEventListener("click", async () => {
+      if (selectedFiles.length === 0) {
+        alert("Please select at least one CSV file.");
+        return;
+      }
+
+      try {
+        const combinedData = [];
+        for (const fileId of selectedFiles) {
+          const response = await fetch(`http://localhost:8000/csv-data/${fileId}`);
+          if (!response.ok) throw new Error(`Failed to fetch CSV data for file ${fileId}`);
+          const data = await response.json();
+          combinedData.push(...data);
         }
 
-        document.getElementById('next-btn').addEventListener('click', function() {
-            if (currentPage * recordsPerPage < totalFiles) {
-                currentPage++;
-                displayFiles(currentPage);
-                updatePaginationButtons();
-                document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
-            }
-        });
+        // Prepare data for Highcharts networkgraph
+        // Expecting each row to have 'source' and 'target' properties, 'force' can be optional or ignored
+        const networkData = combinedData.map((row) => [row.source, row.target]);
 
-        document.getElementById('prev-btn').addEventListener('click', function() {
-            if (currentPage > 1) {
-                currentPage--;
-                displayFiles(currentPage);
-                updatePaginationButtons();
-                document.getElementById("page-no").textContent=`Page number: ${currentPage}`;
-            }
-        });
-
-
-
-        function toggleFileSelection(fileId) {
-            const index = selectedFiles.indexOf(fileId);
-            if (index > -1) {
-                selectedFiles.splice(index, 1);
-            } else {
-                selectedFiles.push(fileId);
-            }
-        }
-
-        document.getElementById('generate-graph-btn').addEventListener('click', async function() {
-            if (selectedFiles.length === 0) {
-                alert('Please select at least one CSV file.');
-                return;
-            }
-
-            const combinedData = [];
-
-            for (const fileId of selectedFiles) {
-                const response = await fetch(`http://localhost:8000/csv-data/${fileId}`);
-                const data = await response.json();
-                combinedData.push(...data);
-            }
-
-            const networkData = combinedData.map(row => [row.source, row.target, row.force]);
-            console.log(networkData);
-            Highcharts.chart('network-graph-container', {
-                chart: {
-                    type: 'networkgraph',
-                    height: '100%'
+        Highcharts.chart("network-graph-container", {
+          chart: {
+            type: "networkgraph",
+            height: "100%",
+          },
+          title: {
+            text: "Combined Network Graph",
+          },
+          plotOptions: {
+            networkgraph: {
+              keys: ["from", "to"],
+              layoutAlgorithm: {
+                enableSimulation: true,
+                linkLength: 50,
+              },
+              link: {
+                color: "blue",
+                lineWidth: 2,
+                dataLabels: {
+                  enabled: false,
                 },
-                title: {
-                    text: 'Combined Network Graph'
-                },
-                plotOptions: {
-                    networkgraph: {
-                        keys: ['from','to'],
-                        layoutAlgorithm: {
-                            enableSimulation: true,
-                            linkLength: 50
-                        },
-                        link: {
-                            color: 'blue',
-                            lineWidth: 2,
-                            dataLabels:{
-                                enabled: false
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    dataLabels: {
-                        enabled: true,
-                        allowOverlap:false
-                    },
-                    marker: {
-                        radius: 20
-                    },
-                    data: networkData
-                }]
-            });
+              },
+            },
+          },
+          series: [
+            {
+              dataLabels: {
+                enabled: true,
+                allowOverlap: false,
+              },
+              marker: {
+                radius: 20,
+              },
+              data: networkData,
+            },
+          ],
         });
-        // const checkboxes = document.querySelectorAll('#file-list input[type="checkbox"]');
-        // checkboxes.forEach(checkbox => checkbox.checked =     false);
-    </script>
-
+      } catch (error) {
+        alert("Error generating network graph: " + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
