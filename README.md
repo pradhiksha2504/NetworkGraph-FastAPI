@@ -17,7 +17,7 @@ This project enables users to upload CSV files, store them in a **PostgreSQL** d
 
 | Layer        | Technology               |
 | ------------ | ------------------------ |
-| **Backend**  | FastAPI, PostgreSQL      |
+| **Backend**  | FastAPI                  |
 | **Frontend** | HTML, CSS, JavaScript    |
 | **Graph**    | Highcharts Network Graph |
 | **Database** | PostgreSQL               |
@@ -70,9 +70,6 @@ GRANT ALL PRIVILEGES ON DATABASE network_graphs TO your_user;
 ```bash
 uvicorn main:app --reload
 ```
-
-API will be available at:
-[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
